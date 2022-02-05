@@ -28,8 +28,10 @@ So unless it's possible to somehow add a bypass, i can only see this ASM method 
 There's also a few problems i assume one might run into, and it's to do with NoClassDefErrors being thrown. Classes are defined not only by FQCN (fully qualified class name; class name and package), but also their classloader. So if the ASM tries to invoke a method in a class that was loaded by a classloader that isn't similar to the ASMClassLoader, then the class won't be found.
 
 I'm not sure if making the ASMClassLoader's parent equal to the parent of the target method's classloader will fix it. E.g:
-ASMClassLoader -> LaunchClassLoader -> SystemClassLoader -> null
-BukkitPluginClassLoader -> LaunchClassLoader -> SystemClassLoader -> null
+
+`ASMClassLoader -> LaunchClassLoader -> SystemClassLoader -> null`
+
+`BukkitPluginClassLoader -> LaunchClassLoader -> SystemClassLoader -> null`
 
 But i remember testing this with minecraft forge, and this didn't work (i was trying to listen to forge events from a bukkit plugin. Plugins are loaded by a PluginClassLoader, whose parents are LaunchClassLoader, but forge events are loaded by LaunchClassLoader, and the ASM event handlers are loaded by an ASMClassLoader whose parent is LaunchClassLoader)
 
