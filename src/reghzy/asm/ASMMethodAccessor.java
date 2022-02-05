@@ -4,7 +4,6 @@ import reghzy.asm.utils.ClassGenerator;
 import reghzy.asm.utils.ReflectHelper;
 
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 
 /**
  * A helper class for creating method accessors that use ASM generated classes to invoke the method
@@ -24,28 +23,28 @@ public class ASMMethodAccessor {
      */
     public static <T, V> MethodAccessor<T, V> create(Class<T> targetClass, String methodName, Class<?>... parameterTypes) {
         Method method = ReflectHelper.findDeclaredMethod(targetClass, methodName, parameterTypes);
-        if (method.getReturnType().isAssignableFrom(method.getReturnType())) {
-            if (!method.isAccessible()) {
-                method.setAccessible(true);
-            }
-
-            try {
-                Class<?> clazz = ClassGenerator.generate(method);
-                return (MethodAccessor<T, V>) clazz.newInstance();
-            }
-            catch (InstantiationException e) {
-                throw new RuntimeException("InstantiationException", e);
-            }
-            catch (IllegalAccessException e) {
-                throw new RuntimeException("IllegalAccessException", e);
-            }
-            catch (Throwable e) {
-                throw new RuntimeException("Failed to either generate class, or invoke constructor", e);
-            }
+        if (!method.isAccessible()) {
+            method.setAccessible(true);
         }
 
-        throw new RuntimeException(MessageFormat.format("Incompatible method type. Method return type {0} cannot be assigned to {1}",
-                                                        method.getReturnType().getName(), method.getReturnType().getName()));
+        try {
+            Class<?> clazz = ClassGenerator.generate(method);
+            return (MethodAccessor<T, V>) clazz.newInstance();
+        }
+        catch (InstantiationException e) {
+            throw new RuntimeException("InstantiationException", e);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException("IllegalAccessException", e);
+        }
+        catch (Throwable e) {
+            throw new RuntimeException("Failed to either generate class, or invoke constructor", e);
+        }
+
+        // if (returnType.isAssignableFrom(method.getReturnType())) { }
+        // was planning on putting the return type in the create() method... but nah
+        // throw new RuntimeException(MessageFormat.format("Incompatible method type. Method return type {0} cannot be assigned to {1}",
+        //                                                 method.getReturnType().getName(), returnType.getName()));
     }
 
     /**
@@ -56,27 +55,23 @@ public class ASMMethodAccessor {
      * @return A method accessor
      */
     public static <T, V> MethodAccessor<T, V> create(Method method) {
-        if (method.getReturnType().isAssignableFrom(method.getReturnType())) {
-            if (!method.isAccessible()) {
-                method.setAccessible(true);
-            }
+        // Doesn't do anything
+        // if (!method.isAccessible()) {
+        //     method.setAccessible(true);
+        // }
 
-            try {
-                Class<?> clazz = ClassGenerator.generate(method);
-                return (MethodAccessor<T, V>) clazz.newInstance();
-            }
-            catch (InstantiationException e) {
-                throw new RuntimeException("InstantiationException", e);
-            }
-            catch (IllegalAccessException e) {
-                throw new RuntimeException("IllegalAccessException", e);
-            }
-            catch (Throwable e) {
-                throw new RuntimeException("Failed to either generate class, or invoke constructor", e);
-            }
+        try {
+            Class<?> clazz = ClassGenerator.generate(method);
+            return (MethodAccessor<T, V>) clazz.newInstance();
         }
-
-        throw new RuntimeException(MessageFormat.format("Incompatible method type. Method return type {0} cannot be assigned to {1}",
-                                                        method.getReturnType().getName(), method.getReturnType().getName()));
+        catch (InstantiationException e) {
+            throw new RuntimeException("InstantiationException", e);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException("IllegalAccessException", e);
+        }
+        catch (Throwable e) {
+            throw new RuntimeException("Failed to either generate class, or invoke constructor", e);
+        }
     }
 }
