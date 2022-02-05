@@ -1,6 +1,14 @@
 package reghzy.asm;
 
 public class Main {
+    /**
+     * <h1>
+     *     One problem
+     * </h1>
+     * <h3>
+     *     You cannot access private/protected methods with this, because of java access security
+     * </h3>
+     */
     public static void main(String[] args) {
         // creates the accessor. This instance is purely generated, and the only way to access the source code
         // would be to write the bytes to a file. Look in ClassGenerator on how to do that :)
