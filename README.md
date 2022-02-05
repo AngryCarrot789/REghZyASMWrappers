@@ -1,7 +1,7 @@
 # REghZyASMWrappers
 A small library for creating MethodAccessors, generating using bytecode ASM, which can act as replacements for reflection
 
-## example
+## Example
 ```java
 // func_72798_a == getBlockId(int,int,int) -> int
 MethodAccessor<World, Integer> getIdAccessor = ASMMethodAccessor.create(World.class, "func_72798_a", int.class, int.class, int.class);
@@ -19,6 +19,33 @@ if (blockSolidityAccessor.invokeBool(overworld, 2250, 67, -2434, ForgeDirection.
     ...
 }
 ```
+
+# What it looks like when decompiled
+Take this code:
+```java 
+MethodAccessor<MyWorld, Integer> accessor = 
+    ASMMethodAccessor.create(
+            MyWorld.class, 
+            "getBlockId", 
+            int.class, int.class, int.class);
+```
+
+When fully generated, written to a `.class` file, and opened in jd-gui, it will look like this:
+
+```java
+import reghzy.asm.Main;
+import reghzy.asm.MethodAccessor;
+
+public class REghZyASMMethod_MyWorld_getBlockId_0 implements MethodAccessor {
+    public int invokeInt(Object target, Object[] params) {
+        return ((Main.MyWorld) target).getBlockId(((Integer) params[0]).intValue(), 
+                                                  ((Integer) params[1]).intValue(), 
+                                                  ((Integer) params[2]).intValue());
+    }
+}
+```
+
+> I manually renamed the args to `target` and `params`, because they won't keep their name during runtime
 
 # The only big problem
 Due to java's access security (private/protected/etc), you can't use the ASM method accessors for invoking inaccessible methods. So basically, you can only really invoke public methods, and i suppose you could invoke package-private/protected methods if you edit the ASM generated class' package location, but i haven't tried that
