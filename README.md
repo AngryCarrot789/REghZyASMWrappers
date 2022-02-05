@@ -32,3 +32,5 @@ ASMClassLoader -> LaunchClassLoader -> SystemClassLoader -> null
 BukkitPluginClassLoader -> LaunchClassLoader -> SystemClassLoader -> null
 
 But i remember testing this with minecraft forge, and this didn't work (i was trying to listen to forge events from a bukkit plugin. Plugins are loaded by a PluginClassLoader, whose parents are LaunchClassLoader, but forge events are loaded by LaunchClassLoader, and the ASM event handlers are loaded by an ASMClassLoader whose parent is LaunchClassLoader)
+
+I also have no idea why i kept writing what i wrote above... but if you read it all and understand some of it... nice :)
