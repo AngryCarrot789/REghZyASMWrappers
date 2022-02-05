@@ -1,5 +1,7 @@
 # REghZyASMWrappers
-A small library for creating MethodAccessors, generating using bytecode ASM, which can act as replacements for reflection
+A small library for creating MethodAccessors, generating using bytecode ASM, which can act as replacements for reflection.
+
+One use i can think of, is Scala-Java interop, because i've found it to be quite dodgy
 
 ## Example
 ```java
