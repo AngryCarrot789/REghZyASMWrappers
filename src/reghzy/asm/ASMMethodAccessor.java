@@ -23,9 +23,10 @@ public class ASMMethodAccessor {
      */
     public static <T, V> MethodAccessor<T, V> create(Class<T> targetClass, String methodName, Class<?>... parameterTypes) {
         Method method = ReflectHelper.findDeclaredMethod(targetClass, methodName, parameterTypes);
-        if (!method.isAccessible()) {
-            method.setAccessible(true);
-        }
+        // Doesn't do anything
+        // if (!method.isAccessible()) {
+        //     method.setAccessible(true);
+        // }
 
         try {
             Class<?> clazz = ClassGenerator.generate(method);

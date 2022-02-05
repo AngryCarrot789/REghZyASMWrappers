@@ -28,6 +28,16 @@ public class ClassGenerator {
     private static final String INVOKE_BOOL = "(Ljava/lang/Object;[Ljava/lang/Object;)Z";
     private static final String INVOKE_CHAR = "(Ljava/lang/Object;[Ljava/lang/Object;)C";
     private static final String INVOKE_VOID = "(Ljava/lang/Object;[Ljava/lang/Object;)V";
+    private static final String INVOKE_REF_0P = "(Ljava/lang/Object;)Ljava/lang/Object;";
+    private static final String INVOKE_BYTE_0P = "(Ljava/lang/Object;)B";
+    private static final String INVOKE_SHORT_0P = "(Ljava/lang/Object;)S";
+    private static final String INVOKE_INT_0P = "(Ljava/lang/Object;)I";
+    private static final String INVOKE_LONG_0P = "(Ljava/lang/Object;)J";
+    private static final String INVOKE_FLOAT_0P = "(Ljava/lang/Object;)F";
+    private static final String INVOKE_DOUBLE_0P = "(Ljava/lang/Object;)D";
+    private static final String INVOKE_BOOL_0P = "(Ljava/lang/Object;)Z";
+    private static final String INVOKE_CHAR_0P = "(Ljava/lang/Object;)C";
+    private static final String INVOKE_VOID_0P = "(Ljava/lang/Object;)V";
     private static int NEXT_ID = 0;
 
     /**
@@ -45,15 +55,7 @@ public class ClassGenerator {
         // generates a unique class name, not in a package or anything
         String className = MessageFormat.format("REghZyASMMethod_{0}_{1}_{2}", method.getDeclaringClass().getSimpleName(), method.getName(), NEXT_ID++);
         ClassWriter cw = createClassAndCtor(className);
-
-        Class<?> returnType = method.getReturnType();
-        if (returnType.isPrimitive()) {
-            createInvokerPrimitive(cw, method, returnType);
-        }
-        else {
-            createInvoker(cw, method, "invoke", INVOKE_REF, Opcodes.ARETURN);
-        }
-
+        createInvokeMethod(cw, method, method.getReturnType(), method.getParameterTypes().length == 0);
         cw.visitEnd();
 
         // -----------------------------------------------------------
@@ -104,34 +106,69 @@ public class ClassGenerator {
         return cw;
     }
 
-    private static void createInvokerPrimitive(ClassVisitor cw, Method method, Class<?> primitive) {
-        if (primitive == byte.class) {
-            createInvoker(cw, method, "invokeByte", INVOKE_BYTE, Opcodes.IRETURN);
-        }
-        else if (primitive == short.class) {
-            createInvoker(cw, method, "invokeShort", INVOKE_SHORT, Opcodes.IRETURN);
-        }
-        else if (primitive == int.class) {
-            createInvoker(cw, method, "invokeInt", INVOKE_INT, Opcodes.IRETURN);
-        }
-        else if (primitive == long.class) {
-            createInvoker(cw, method, "invokeLong", INVOKE_LONG, Opcodes.LRETURN);
-        }
-        else if (primitive == float.class) {
-            createInvoker(cw, method, "invokeFloat", INVOKE_FLOAT, Opcodes.FRETURN);
-        }
-        else if (primitive == double.class) {
-            createInvoker(cw, method, "invokeDouble", INVOKE_DOUBLE, Opcodes.DRETURN);
-        }
-        else if (primitive == boolean.class) {
-            createInvoker(cw, method, "invokeBool", INVOKE_BOOL, Opcodes.IRETURN);
-        }
-        else if (primitive == char.class) {
-            createInvoker(cw, method, "invokeChar", INVOKE_CHAR, Opcodes.IRETURN);
+    private static void createInvokeMethod(ClassVisitor cw, Method method, Class<?> returnType, boolean useEmptyParamDescriptor) {
+        if (returnType.isPrimitive()) {
+            createInvokerPrimitive(cw, method, returnType, useEmptyParamDescriptor);
         }
         else {
-            createInvoker(cw, method, "invokeVoid", INVOKE_VOID, Opcodes.RETURN);
+            createInvoker(cw, method,
+                          "invoke",
+                          useEmptyParamDescriptor ? INVOKE_REF_0P : INVOKE_REF,
+                          Opcodes.ARETURN);
         }
+    }
+
+    private static void createInvokerPrimitive(ClassVisitor cw, Method method, Class<?> primitive, boolean useEmptyParamDescriptor) {
+        String invokeName;
+        String invokeDesc;
+        int returnOpCode;
+        if (primitive == byte.class) {
+            invokeName = "invokeByte";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_BYTE_0P : INVOKE_BYTE;
+            returnOpCode = Opcodes.IRETURN;
+        }
+        else if (primitive == short.class) {
+            invokeName = "invokeShort";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_SHORT_0P : INVOKE_SHORT;
+            returnOpCode = Opcodes.IRETURN;
+        }
+        else if (primitive == int.class) {
+            invokeName = "invokeInt";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_INT_0P : INVOKE_INT;
+            returnOpCode = Opcodes.IRETURN;
+        }
+        else if (primitive == long.class) {
+            invokeName = "invokeLong";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_LONG_0P : INVOKE_LONG;
+            returnOpCode = Opcodes.LRETURN;
+        }
+        else if (primitive == float.class) {
+            invokeName = "invokeFloat";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_FLOAT_0P : INVOKE_FLOAT;
+            returnOpCode = Opcodes.FRETURN;
+        }
+        else if (primitive == double.class) {
+            invokeName = "invokeDouble";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_DOUBLE_0P : INVOKE_DOUBLE;
+            returnOpCode = Opcodes.DRETURN;
+        }
+        else if (primitive == boolean.class) {
+            invokeName = "invokeBool";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_BOOL_0P : INVOKE_BOOL;
+            returnOpCode = Opcodes.IRETURN;
+        }
+        else if (primitive == char.class) {
+            invokeName = "invokeChar";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_CHAR_0P : INVOKE_CHAR;
+            returnOpCode = Opcodes.IRETURN;
+        }
+        else {
+            invokeName = "invokeVoid";
+            invokeDesc = useEmptyParamDescriptor ? INVOKE_VOID_0P : INVOKE_VOID;
+            returnOpCode = Opcodes.RETURN;
+        }
+
+        createInvoker(cw, method, invokeName, invokeDesc, returnOpCode);
     }
 
     // creates a specific invoke method

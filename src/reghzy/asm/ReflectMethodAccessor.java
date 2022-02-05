@@ -12,6 +12,8 @@ import java.text.MessageFormat;
  * @param <V> The method's return type (e.g {@link Integer} for size(), or null for void return types)
  */
 public class ReflectMethodAccessor<T, V> implements MethodAccessor<T, V> {
+    private static final Object[] EMPTY_ARR = new Object[0];
+
     private final Class<T> ownerClass;
     private final Class<V> returnType;
     private final String methodName;
@@ -158,6 +160,74 @@ public class ReflectMethodAccessor<T, V> implements MethodAccessor<T, V> {
     public void invokeVoid(T target, Object... params) {
         try {
             this.method.invoke(target, params);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException("Method access was externally changed; IllegalAccessException", e);
+        }
+        catch (InvocationTargetException e) {
+            throw new RuntimeException("Unhandled exception while invoking method", e);
+        }
+    }
+
+    @Override
+    public V invoke(T target) {
+        try {
+            return (V) this.method.invoke(target, EMPTY_ARR);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException("Method access was externally changed; IllegalAccessException", e);
+        }
+        catch (InvocationTargetException e) {
+            throw new RuntimeException("Unhandled exception while invoking method", e);
+        }
+    }
+
+    // all of this auto-unboxing required... not nice!
+
+    @Override
+    public byte invokeByte(T target) {
+        return (Byte) invoke(target);
+    }
+
+    @Override
+    public short invokeShort(T target) {
+        return (Short) invoke(target);
+    }
+
+    @Override
+    public int invokeInt(T target) {
+        return (Integer) invoke(target);
+    }
+
+    @Override
+    public long invokeLong(T target) {
+        return (Long) invoke(target);
+    }
+
+    @Override
+    public float invokeFloat(T target) {
+        return (Float) invoke(target);
+    }
+
+    @Override
+    public double invokeDouble(T target) {
+        return (Double) invoke(target);
+    }
+
+    @Override
+    public boolean invokeBool(T target) {
+        return (Boolean) invoke(target);
+    }
+
+    @Override
+    public char invokeChar(T target) {
+        return (Character) invoke(target);
+    }
+
+    @Override
+    public void invokeVoid(T target) {
+        try {
+            this.method.invoke(target, EMPTY_ARR);
         }
         catch (IllegalAccessException e) {
             throw new RuntimeException("Method access was externally changed; IllegalAccessException", e);
